@@ -27,8 +27,23 @@ services:
     environment:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      INVENTORY_SERVICE_URL: http://inventory-service:8081
     ports:
       - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sdet-network
+  inventory-service:
+    build:
+      context: ./services/inventory-service
+    container_name: inventory-service-container
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8081:8081"
     depends_on:
       postgres:
         condition: service_healthy
