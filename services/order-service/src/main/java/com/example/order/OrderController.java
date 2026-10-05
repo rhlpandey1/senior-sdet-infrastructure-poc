@@ -1,64 +1,42 @@
 package com.example.order;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClient;
+import com.example.order.dto.OrderResponse;
+import com.example.order.service.OrderService;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/orders")
+@Validated
 public class OrderController {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final RestClient restClient;
+    private final OrderService orderService;
 
-    public OrderController(
-            JdbcTemplate jdbcTemplate,
-            @Value("${inventory.service.url}") String inventoryServiceUrl) {
-
-        this.jdbcTemplate = jdbcTemplate;
-
-        this.restClient = RestClient.builder()
-                .baseUrl(inventoryServiceUrl)
-                .build();
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
-    @GetMapping("/orders/{id}")
-    public Map<String, Object> getOrder(@PathVariable String id) {
-        return jdbcTemplate.queryForMap(
-                "SELECT id, customer_name, product, quantity, status " +
-                "FROM orders WHERE id = ?",
-                id
-        );
+    @GetMapping("/{id}")
+    public OrderResponse getOrder(
+            @PathVariable
+            @NotBlank String id) {
+
+        return orderService.getOrder(id);
+    }
+
+    @GetMapping("/{id}/inventory")
+    public OrderService.OrderInventoryResponse getOrderInventory(
+            @PathVariable
+            @NotBlank String id) {
+
+        return orderService.getOrderInventory(id);
     }
 
     @GetMapping("/db-check")
     public Map<String, Object> checkDatabase() {
-        return jdbcTemplate.queryForMap(
-                "SELECT current_database(), current_user"
-        );
-    }
-
-    @GetMapping("/orders/{id}/inventory")
-    public Map<String, Object> getOrderInventory(@PathVariable String id) {
-
-        Map<String, Object> order = getOrder(id);
-
-        String product = (String) order.get("product");
-
-        Map<String, Object> inventory = restClient.get()
-                .uri("/inventory/{product}", product)
-                .retrieve()
-                .body(Map.class);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("order", order);
-        response.put("inventory", inventory);
-
-        return response;
+        return orderService.checkDatabase();
     }
 }

@@ -1,20 +1,21 @@
 package com.example.inventory;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
+import com.example.inventory.dto.InventoryResponse;
+import com.example.inventory.service.InventoryService;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/inventory")
 public class InventoryController {
 
-    @GetMapping("/inventory/{product}")
-    public Map<String, Object> getInventory(@PathVariable String product) {
-        return Map.of(
-                "product", product,
-                "availableQuantity", 10,
-                "status", "AVAILABLE"
-        );
+    private final InventoryService inventoryService;
+
+    public InventoryController(InventoryService inventoryService) {
+        this.inventoryService = inventoryService;
+    }
+
+    @GetMapping("/{product}")
+    public InventoryResponse getInventory(@PathVariable String product) {
+        return inventoryService.getInventory(product);
     }
 }
