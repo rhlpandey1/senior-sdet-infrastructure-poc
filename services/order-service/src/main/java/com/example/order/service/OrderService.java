@@ -5,7 +5,8 @@ import com.example.order.dto.InventoryResponse;
 import com.example.order.dto.OrderResponse;
 import com.example.order.repository.OrderRepository;
 import org.springframework.stereotype.Service;
-
+import com.example.order.event.OrderCreatedEvent;
+import com.example.order.kafka.OrderEventProducer;
 import java.util.Map;
 
 @Service
@@ -13,15 +14,17 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final InventoryClient inventoryClient;
+    private final OrderEventProducer orderEventProducer;
 
-    public OrderService(
-            OrderRepository orderRepository,
-            InventoryClient inventoryClient) {
+	public OrderService(
+        OrderRepository orderRepository,
+        InventoryClient inventoryClient,
+        OrderEventProducer orderEventProducer) {
 
-        this.orderRepository = orderRepository;
-        this.inventoryClient = inventoryClient;
-    }
-
+    	this.orderRepository = orderRepository;
+    	this.inventoryClient = inventoryClient;
+    	this.orderEventProducer = orderEventProducer;
+	}
     public OrderResponse getOrder(String id) {
 
         Map<String, Object> order = orderRepository.findById(id);
@@ -54,4 +57,17 @@ public class OrderService {
             InventoryResponse inventory
     ) {
     }
+public void publishOrderCreated(String id) {
+
+    OrderResponse order = getOrder(id);
+
+    OrderCreatedEvent event = new OrderCreatedEvent(
+            "ORDER_CREATED",
+            order.id(),
+            order.product(),
+            order.quantity()
+    );
+
+    orderEventProducer.publishOrderCreated(event);
+}
 }

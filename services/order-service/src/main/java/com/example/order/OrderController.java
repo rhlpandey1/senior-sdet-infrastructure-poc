@@ -39,4 +39,16 @@ public class OrderController {
     public Map<String, Object> checkDatabase() {
         return orderService.checkDatabase();
     }
+@PostMapping("/{id}/events")
+public Map<String, Object> publishOrderCreated(
+        @PathVariable
+        @NotBlank String id) {
+
+    orderService.publishOrderCreated(id);
+
+    return Map.of(
+            "message", "ORDER_CREATED event published",
+            "orderId", id
+    );
+}
 }
