@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Order Management</h1>
+
+    <div class="search-box">
+        <label for="orderId">Order ID</label>
+        <input id="orderId" type="text" placeholder="Enter Order ID">
+        <button id="searchButton">Search Order</button>
+    </div>
+
+    <div id="loading" class="hidden">Loading...</div>
+
+    <div id="errorMessage" class="error hidden"></div>
+
+    <div id="orderDetails" class="card hidden">
+        <h2>Order Details</h2>
+
+        <div class="field">
+            <span>Order ID</span>
+            <strong id="orderIdValue"></strong>
+        </div>
+
+        <div class="field">
+            <span>Customer</span>
+            <strong id="customerValue"></strong>
+        </div>
+
+        <div class="field">
+            <span>Product</span>
+            <strong id="productValue"></strong>
+        </div>
+
+        <div class="field">
+            <span>Quantity</span>
+            <strong id="quantityValue"></strong>
+        </div>
+
+        <div class="field">
+            <span>Status</span>
+            <strong id="statusValue"></strong>
+        </div>
+    </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

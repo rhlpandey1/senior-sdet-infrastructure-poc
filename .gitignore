@@ -3,3 +3,8 @@ target/
 
 # Test reports
 **/allure-results/
+
+automation/ui-tests/playwright-report/
+automation/ui-tests/test-results/
+automation/ui-tests/blob-report/
+automation/ui-tests/playwright/.auth/
