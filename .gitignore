@@ -8,3 +8,6 @@ automation/ui-tests/playwright-report/
 automation/ui-tests/test-results/
 automation/ui-tests/blob-report/
 automation/ui-tests/playwright/.auth/
+
+# Local Kubernetes credentials
+k8s/secret.yaml

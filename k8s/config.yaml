@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: sdet-poc
+data:
+  DB_NAME: orders_db
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  INVENTORY_SERVICE_URL: http://inventory-service:8081
