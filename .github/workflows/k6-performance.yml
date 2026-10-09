@@ -1,0 +1,79 @@
+name: K6 Performance Smoke Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  performance-smoke:
+    name: Order API Performance Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      DB_NAME: orders_db
+      DB_USERNAME: orders_user
+      DB_PASSWORD: ci_db_password
+      SECURITY_USERNAME: sdet
+      SECURITY_PASSWORD: sdet123
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build service JARs
+        run: |
+          mvn --batch-mode -f services/order-service/pom.xml -DskipTests package
+          mvn --batch-mode -f services/inventory-service/pom.xml -DskipTests package
+
+      - name: Start application stack
+        run: docker compose up -d --build
+
+      - name: Wait for Order Service
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8080/actuator/health >/dev/null; then
+              echo "Order Service is healthy"
+              exit 0
+            fi
+            sleep 5
+          done
+          docker compose ps
+          docker compose logs --tail=100
+          exit 1
+
+      - name: Set up K6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run performance smoke test
+        run: |
+          mkdir -p performance/k6/results
+          k6 run \
+            --summary-export=performance/k6/results/summary.json \
+            performance/k6/order-api-smoke.js
+
+      - name: Upload K6 results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-performance-results
+          path: performance/k6/results/summary.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Show application logs on failure
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: Stop application stack
+        if: always()
+        run: docker compose down -v
