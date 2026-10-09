@@ -36,6 +36,19 @@ jobs:
               -w 'HTTP status: %{http_code}\n' "$url" || true
           done
 
+      - name: Test Docker Hub auth endpoint
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          curl -sS --max-time 20 -o /dev/null \
+            -w 'Auth endpoint HTTP status: %{http_code}\n' \
+            --get \
+            --data-urlencode "account=$DOCKERHUB_USERNAME" \
+            --data-urlencode "client_id=docker" \
+            --data-urlencode "offline_token=true" \
+            --data-urlencode "service=registry.docker.io" \
+            https://auth.docker.io/token
+
       - name: Log in to Docker Hub
         shell: bash
         env:
@@ -120,6 +133,19 @@ jobs:
             curl -sS --max-time 20 -o /dev/null \
               -w 'HTTP status: %{http_code}\n' "$url" || true
           done
+
+      - name: Test Docker Hub auth endpoint
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          curl -sS --max-time 20 -o /dev/null \
+            -w 'Auth endpoint HTTP status: %{http_code}\n' \
+            --get \
+            --data-urlencode "account=$DOCKERHUB_USERNAME" \
+            --data-urlencode "client_id=docker" \
+            --data-urlencode "offline_token=true" \
+            --data-urlencode "service=registry.docker.io" \
+            https://auth.docker.io/token
 
       - name: Log in to Docker Hub
         shell: bash
