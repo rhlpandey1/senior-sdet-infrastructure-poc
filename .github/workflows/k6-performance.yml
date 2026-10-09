@@ -53,7 +53,18 @@ jobs:
           mvn --batch-mode -f services/inventory-service/pom.xml -DskipTests package
 
       - name: Start application stack
-        run: docker compose up -d --build
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            if docker compose up -d --build; then
+              echo "Application stack started successfully"
+              exit 0
+            fi
+            echo "Compose startup attempt $attempt failed"
+            if [ "$attempt" -lt 3 ]; then sleep 15; fi
+          done
+          echo "Application stack failed to start after 3 attempts"
+          exit 1
 
       - name: Wait for Order Service
         run: |
