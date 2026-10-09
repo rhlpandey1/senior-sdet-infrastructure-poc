@@ -24,48 +24,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Diagnose Docker Hub connectivity
-        shell: bash
-        run: |
-          for url in \
-            "https://registry-1.docker.io/v2/" \
-            "https://auth.docker.io/token?service=registry.docker.io"
-          do
-            echo "Testing $url"
-            curl -sS --max-time 20 -o /dev/null \
-              -w 'HTTP status: %{http_code}\n' "$url" || true
-          done
-
-      - name: Test Docker Hub auth endpoint
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
-          curl -sS --max-time 20 -o /dev/null \
-            -w 'Auth endpoint HTTP status: %{http_code}\n' \
-            --get \
-            --data-urlencode "account=$DOCKERHUB_USERNAME" \
-            --data-urlencode "client_id=docker" \
-            --data-urlencode "offline_token=true" \
-            --data-urlencode "service=registry.docker.io" \
-            https://auth.docker.io/token
-
-      - name: Log in to Docker Hub
-        shell: bash
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: |
-          if [ -z "$DOCKERHUB_USERNAME" ]; then
-            echo "DOCKERHUB_USERNAME is empty or unavailable"
-            exit 1
-          fi
-          if [ -z "$DOCKERHUB_TOKEN" ]; then
-            echo "DOCKERHUB_TOKEN is empty or unavailable"
-            exit 1
-          fi
-          echo "Both Docker Hub secrets are present."
-          printf '%s' "$DOCKERHUB_TOKEN" | docker login             --username "$DOCKERHUB_USERNAME" --password-stdin
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -121,48 +79,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Diagnose Docker Hub connectivity
-        shell: bash
-        run: |
-          for url in \
-            "https://registry-1.docker.io/v2/" \
-            "https://auth.docker.io/token?service=registry.docker.io"
-          do
-            echo "Testing $url"
-            curl -sS --max-time 20 -o /dev/null \
-              -w 'HTTP status: %{http_code}\n' "$url" || true
-          done
-
-      - name: Test Docker Hub auth endpoint
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
-          curl -sS --max-time 20 -o /dev/null \
-            -w 'Auth endpoint HTTP status: %{http_code}\n' \
-            --get \
-            --data-urlencode "account=$DOCKERHUB_USERNAME" \
-            --data-urlencode "client_id=docker" \
-            --data-urlencode "offline_token=true" \
-            --data-urlencode "service=registry.docker.io" \
-            https://auth.docker.io/token
-
-      - name: Log in to Docker Hub
-        shell: bash
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: |
-          if [ -z "$DOCKERHUB_USERNAME" ]; then
-            echo "DOCKERHUB_USERNAME is empty or unavailable"
-            exit 1
-          fi
-          if [ -z "$DOCKERHUB_TOKEN" ]; then
-            echo "DOCKERHUB_TOKEN is empty or unavailable"
-            exit 1
-          fi
-          echo "Both Docker Hub secrets are present."
-          printf '%s' "$DOCKERHUB_TOKEN" | docker login             --username "$DOCKERHUB_USERNAME" --password-stdin
 
       - name: Set up Java
         uses: actions/setup-java@v4
