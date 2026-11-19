@@ -7,4 +7,10 @@
             <class name="com.example.api.OrderApiTest"/>
         </classes>
     </test>
+
+    <test name="CIAM Authentication Tests">
+        <classes>
+            <class name="com.example.api.ciam.KeycloakAuthenticationTest"/>
+        </classes>
+    </test>
 </suite>

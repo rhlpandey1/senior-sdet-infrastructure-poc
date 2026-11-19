@@ -53,6 +53,12 @@
             <version>${kafka.version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>10.10</version>
+        </dependency>
     </dependencies>
 
     <build>
